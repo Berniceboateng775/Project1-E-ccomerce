@@ -1,0 +1,38 @@
+version: '3.9'
+services:
+  order-db:
+    container_name: order-db
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: order-service
+    ports:
+      - '5433:5432' # Adjusted port to avoid conflict with product-db
+    volumes:
+      - orderdata:/var/lib/postgresql/data
+
+  order-service:
+    container_name: order-service
+    build: .
+    restart: always
+    volumes:
+      - .:/app
+    environment:
+      DB_SCHEMA: order-service
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: order-db
+      DB_DRIVER: postgres
+    depends_on:
+      - order-db
+    ports:
+      - '3002:3002'
+
+volumes:
+  orderdata: {}
+
+networks:
+    default:
+        external:
+            name: ecommerce-build

@@ -1,0 +1,39 @@
+version: '2'
+services:
+  payment-db:
+    container_name: payment-db
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: payment-service
+    ports:
+      - '6001:5432'   # Default PostgreSQL port
+    volumes:
+      - pgdata1:/var/lib/postgresql/data
+
+  payment-service:
+    container_name: payment-service
+    build: .
+    restart: always
+    volumes:
+      - .:/app
+    environment:
+      DB_SCHEMA: payment-service
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: payment-db
+      DB_DRIVER: postgres
+      PORT: 5432
+    depends_on:
+      - payment-db
+    ports:
+      - '3003:3003'
+
+volumes:
+  pgdata1: {}
+
+networks:
+  default:
+    external:
+      name: ecommerce-build
